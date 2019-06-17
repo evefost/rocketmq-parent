@@ -19,7 +19,7 @@ import java.util.Map;
  * 消息者自动调用
  * @author xie
  */
-public abstract class IConsumerInvoker<T> implements ApplicationContextAware ,InitializingBean{
+public abstract class AbstractConsumerInvoker<T> implements ApplicationContextAware ,InitializingBean{
 
     protected final Logger logger = LoggerFactory.getLogger(ConsumerInvoker.class);
 

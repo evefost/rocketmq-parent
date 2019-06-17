@@ -2,7 +2,7 @@ package com.xie.message.client.support.scan;
 
 import com.alibaba.fastjson.JSON;
 import com.xie.message.client.pojo.MessageWrapper;
-import com.xie.message.client.support.IConsumerInvoker;
+import com.xie.message.client.support.AbstractConsumerInvoker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * 消息者自动调用
  * @author xie
  */
-public class ConsumerInvoker extends IConsumerInvoker<Boolean> {
+public class ConsumerInvoker extends AbstractConsumerInvoker<Boolean> {
 
     protected final Logger logger = LoggerFactory.getLogger(ConsumerInvoker.class);
 

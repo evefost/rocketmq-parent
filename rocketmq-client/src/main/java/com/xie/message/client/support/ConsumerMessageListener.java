@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.xie.message.client.config.RocketmqProperties;
 import com.xie.message.client.pojo.MessageWrapper;
 import com.xie.message.client.pojo.TargetEvent;
-import com.xie.message.client.support.scan.ConsumerInvoker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -26,7 +25,7 @@ public class ConsumerMessageListener implements MessageListenerConcurrently {
     protected ApplicationEventPublisher publisher;
 
     @Autowired(required = false)
-    protected IConsumerInvoker<Boolean> invoker;
+    protected AbstractConsumerInvoker<Boolean> invoker;
 
 
     @Override
