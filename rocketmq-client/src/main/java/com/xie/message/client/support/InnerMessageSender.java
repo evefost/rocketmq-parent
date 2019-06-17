@@ -25,7 +25,7 @@ public interface InnerMessageSender {
 
     void sendAsycMessage(MessageWrapper messageWrapper);
 
-    void sendMessage(MessageWrapper messageWrapper, SendMsgCallback callback) throws RemotingException, MQClientException, InterruptedException;
+    void sendAsycMessage(MessageWrapper messageWrapper, SendMsgCallback callback) throws RemotingException, MQClientException, InterruptedException;
 
     SendResult sendMessage(MessageWrapper messageWrapper) throws MQClientException, RemotingException, MQBrokerException, InterruptedException;
 }

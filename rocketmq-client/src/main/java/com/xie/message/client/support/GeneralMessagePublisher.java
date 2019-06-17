@@ -28,7 +28,7 @@ public class GeneralMessagePublisher extends AbsMessagePublisher {
     @Override
     public void publishEvent(SourceEvent sourceEvent, DelayLevel delayLevel) {
         doBeforePublish(sourceEvent);
-        doSend(sourceEvent,delayLevel);
+        doSend(sourceEvent, delayLevel);
         doAfterPublish(sourceEvent);
     }
 
@@ -41,9 +41,9 @@ public class GeneralMessagePublisher extends AbsMessagePublisher {
             SendResult sendResult = messageSender.sendMessage(wapper);
             return convertResult(sendResult);
         } catch (Exception e) {
-            logger.error(String.format("MQ发送同步消息失败: Topic-Tag:[%s:%s]", sourceEvent.getTopic(), sourceEvent.getTag()),e);
+            logger.error(String.format("MQ发送同步消息失败: Topic-Tag:[%s:%s]", sourceEvent.getTopic(), sourceEvent.getTag()), e);
             throw new RuntimeException(String.format("发送同步消息失败: Topic-Tag:[%s:%s]", sourceEvent.getTopic(), sourceEvent.getTag()));
-        }finally {
+        } finally {
             doAfterPublish(sourceEvent);
         }
     }
@@ -53,15 +53,14 @@ public class GeneralMessagePublisher extends AbsMessagePublisher {
         try {
             doBeforePublish(sourceEvent);
             MessageWrapper wapper = new MessageWrapper(sourceEvent);
-            messageSender.sendMessage(wapper,callback);
+            messageSender.sendAsycMessage(wapper, callback);
         } catch (Exception e) {
-            logger.error(String.format("MQ发送异步消息失败: Topic-Tag:[%s:%s]", sourceEvent.getTopic(), sourceEvent.getTag()),e);
+            logger.error(String.format("MQ发送异步消息失败: Topic-Tag:[%s:%s]", sourceEvent.getTopic(), sourceEvent.getTag()), e);
             throw new RuntimeException(String.format("发送异步消息失败: Topic-Tag:[%s:%s]", sourceEvent.getTopic(), sourceEvent.getTag()));
-        }finally {
+        } finally {
             doAfterPublish(sourceEvent);
         }
     }
-
 
 
     @Override
@@ -70,11 +69,11 @@ public class GeneralMessagePublisher extends AbsMessagePublisher {
     }
 
 
-    public static final SendMsgResult convertResult(SendResult sendResult){
+    public static final SendMsgResult convertResult(SendResult sendResult) {
         SendMsgResult msgResult = new SendMsgResult();
         msgResult.setMsgId(msgResult.getMsgId());
         msgResult.setTransactionId(msgResult.getTransactionId());
-        switch (sendResult.getSendStatus()){
+        switch (sendResult.getSendStatus()) {
             case SEND_OK:
                 msgResult.setStatus(SendStatus.SEND_OK);
                 break;
