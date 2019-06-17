@@ -27,10 +27,13 @@ public class ProducerInvocationHandler implements InvocationHandler {
 
     private ApplicationContext applicationContext;
 
+    private String envPrefix;
+
     public ProducerInvocationHandler(TopicPointInfo producerInfo, ApplicationContext applicationContext) {
         this.producerInfo = producerInfo;
         this.applicationContext = applicationContext;
         this.publisher = applicationContext.getBean(MessagePublisher.class);
+        this.envPrefix= producerInfo.getEnvPrefix();
     }
 
     @Override
@@ -53,9 +56,8 @@ public class ProducerInvocationHandler implements InvocationHandler {
 
         MethodInfo methodInfo = producerInfo.getMethodInfo(method);
         String key = methodInfo.getTopic() + ":" + methodInfo.getTag();
-        logger.debug("发布消息 Topic-Tag:[{}], 方法参数: {}", key, JSON.toJSONString(args));
+        logger.debug("发布消息 Topic-Tag:[{}{}], 方法参数: {}",key, JSON.toJSONString(args));
         SourceEvent sourceEvent = new SourceEvent(this);
-        sourceEvent.setWithEnv(true);
         sourceEvent.setTopic(methodInfo.getTopic());
         sourceEvent.setTag(methodInfo.getTag());
         sourceEvent.setTrans(methodInfo.isTrans());

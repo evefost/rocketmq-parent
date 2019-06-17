@@ -34,9 +34,6 @@ public abstract class AbsMessagePublisher implements MessagePublisher {
     protected abstract void doSend(SourceEvent sourceEvent, DelayLevel delayLevel);
 
     protected void doBeforePublish(SourceEvent sourceEvent) {
-        if (!sourceEvent.isWithEnv()) {
-            sourceEvent.setTopic(producerInfo.getEnvPrefix() + sourceEvent.getTopic());
-        }
         if (StringUtils.isEmpty(sourceEvent.getEventId())) {
             // UUID.randomUUID().toString();
             String msgId = ObjectId.get().toString();

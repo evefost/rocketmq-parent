@@ -9,10 +9,6 @@ import org.springframework.context.ApplicationEvent;
 @EqualsAndHashCode(callSuper = false)
 public class SourceEvent<T> extends ApplicationEvent {
 
-    /**
-     * 是否区分环境
-     */
-    private boolean isWithEnv;
 
     private String transactionId;
     private String eventId;
@@ -24,18 +20,12 @@ public class SourceEvent<T> extends ApplicationEvent {
      */
     private T data;
 
-    //需要保持顺序消费的需要提供相同的orderId
+    /**
+     * 需要保持顺序消费的需要提供相同的orderId
+     */
     private String orderId;
 
     private boolean isTrans;
-
-    public boolean isWithEnv() {
-        return isWithEnv;
-    }
-
-    public void setWithEnv(boolean withEnv) {
-        isWithEnv = withEnv;
-    }
 
     public boolean isTrans() {
         return isTrans;
@@ -56,6 +46,7 @@ public class SourceEvent<T> extends ApplicationEvent {
 
     /**
      * 默认配置主题
+     *
      * @param source
      * @param data
      */
@@ -70,7 +61,7 @@ public class SourceEvent<T> extends ApplicationEvent {
         this.data = data;
     }
 
-    public SourceEvent(Object source,String topic, String tag, T data) {
+    public SourceEvent(Object source, String topic, String tag, T data) {
         super(source);
         this.topic = topic;
         this.tag = tag;
