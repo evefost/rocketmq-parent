@@ -41,6 +41,7 @@ public class RocketmqProperties {
      * 消费者订阅主题,格式:topic1:tag1,topic2:tag2
      */
     private List<String> subscribe;
+
     /**
      * 消息消费重试次数，从0开始
      */

@@ -26,7 +26,7 @@ public class ConsumerMessageListener implements MessageListenerConcurrently {
     protected ApplicationEventPublisher publisher;
 
     @Autowired(required = false)
-    protected ConsumerInvoker invoker;
+    protected IConsumerInvoker<Boolean> invoker;
 
 
     @Override

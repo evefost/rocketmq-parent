@@ -5,6 +5,10 @@ import com.xie.message.client.pojo.SendMsgResult;
 import com.xie.message.client.pojo.SourceEvent;
 
 
+/**
+ * 消息发布接口
+ * @author xieyang
+ */
 public interface MessagePublisher {
 
     /**

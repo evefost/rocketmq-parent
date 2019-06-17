@@ -1,6 +1,5 @@
 package com.xie.message.client.support.scan;
 
-import com.alibaba.fastjson.JSON;
 import com.xie.message.client.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +27,16 @@ import java.util.*;
 import static com.google.common.collect.Sets.newHashSet;
 
 
+/**
+ * 主题声明定义
+ * @author xieyang
+ */
 public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
-        ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware{
+        ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
 
     protected final Logger logger = LoggerFactory.getLogger(TopicDeclareBeanRegistrar.class);
 
-    static final String ENV_PREFIX ="${app.env.prefix:}";
+    static final String ENV_PREFIX = "${app.env.prefix:}";
 
     public static final String CONSUMER_INFO = "consumerInfo";
 
@@ -46,7 +49,7 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
 
     protected Environment environment;
 
-    private  String currentEnv;
+    private String currentEnv;
 
     private static final Set<String> baseTypes = newHashSet(
             "int",
@@ -83,74 +86,74 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
         logger.info("自动扫描主题信息...");
         Set<String> basePackages = getBasePackages(metadata);
         String nameSrvAddr = environment.getProperty("spring.extend.mq.serverAddr");
-        if(StringUtils.isEmpty(nameSrvAddr)){
+        if (StringUtils.isEmpty(nameSrvAddr)) {
             logger.warn("启用topic扫描，但没配置服务地址");
             return;
         }
         currentEnv = resolve(ENV_PREFIX);
-        if(logger.isDebugEnabled()){
-            logger.debug("rocket mq 当前环境前辍:{}",currentEnv);
+        if (logger.isDebugEnabled()) {
+            logger.debug("rocket mq 当前环境前辍:{}", currentEnv);
         }
-        String producerEnable = environment.getProperty("spring.extend.mq.producer.enable","false");
-        String consumerEnable = environment.getProperty("spring.extend.mq.consumer.enable","false");
+        String producerEnable = environment.getProperty("spring.extend.mq.producer.enable", "false");
+        String consumerEnable = environment.getProperty("spring.extend.mq.consumer.enable", "false");
         boolean pdenable = Boolean.parseBoolean(producerEnable);
         boolean csenable = Boolean.parseBoolean(consumerEnable);
-        if(pdenable == false && csenable ==false){
+        if (pdenable == false && csenable == false) {
             logger.warn("生产端,消费端都没有启用,生产端接口将无法注入,可能导致项目启动失败");
             return;
         }
         TopicPointInfo producerInfo = new TopicPointInfo();
         producerInfo.setProducer(true);
         producerInfo.setEnvPrefix(currentEnv);
-        if(pdenable) {
+        if (pdenable) {
             try {
-                scanProducers(basePackages,producerInfo, registry);
+                scanProducers(basePackages, producerInfo, registry);
             } catch (ClassNotFoundException e) {
-                logger.error("扫描mq producer 接口失败",e);
+                logger.error("扫描mq producer 接口失败", e);
             }
         }
         TopicPointInfo consumerInfo = new TopicPointInfo();
         consumerInfo.setProducer(false);
         consumerInfo.setEnvPrefix(currentEnv);
-        if(csenable){
+        if (csenable) {
             try {
-                scanConsumers(basePackages,consumerInfo);
+                scanConsumers(basePackages, consumerInfo);
                 GenericBeanDefinition invokerBd = new GenericBeanDefinition();
                 invokerBd.setBeanClass(ConsumerInvoker.class);
                 MutablePropertyValues values = new MutablePropertyValues();
                 invokerBd.setPropertyValues(values);
                 registry.registerBeanDefinition("autoInvoker", invokerBd);
             } catch (ClassNotFoundException e) {
-                logger.error("扫描mq consumer 失败",e);
+                logger.error("扫描mq consumer 失败", e);
             }
         }
         //注入生者信息
-        injectMethodInfo(PRODUCER_INFO,producerInfo,registry);
+        injectMethodInfo(PRODUCER_INFO, producerInfo, registry);
         //注入consumer信息
-        injectMethodInfo(CONSUMER_INFO,consumerInfo,registry);
+        injectMethodInfo(CONSUMER_INFO, consumerInfo, registry);
     }
 
-    private void injectMethodInfo(String beanName, TopicPointInfo virtualPointInfo, BeanDefinitionRegistry registry ){
+    private void injectMethodInfo(String beanName, TopicPointInfo virtualPointInfo, BeanDefinitionRegistry registry) {
 
         //按环境处理主题
         Map<Method, MethodInfo> methodInfoMappings = virtualPointInfo.getMethodInfoMappings();
         Map<String, MethodInfo> topicMethodMappings = new HashMap<>(methodInfoMappings.size());
-        methodInfoMappings.forEach((method,methodInfo)->{
-            String newTopic = currentEnv+methodInfo.getTopic();
+        methodInfoMappings.forEach((method, methodInfo) -> {
+            String newTopic = currentEnv + methodInfo.getTopic();
             String key = newTopic;
-            if(methodInfo.getTag() != null ) {
-                key = key + ":"+methodInfo.getTag();
+            if (methodInfo.getTag() != null) {
+                key = key + ":" + methodInfo.getTag();
             }
             methodInfo.setTopic(newTopic);
-            topicMethodMappings.put(key,methodInfo);
+            topicMethodMappings.put(key, methodInfo);
         });
         virtualPointInfo.setTopicMethodMappings(topicMethodMappings);
 
         Map<String, List<String>> srcTopicTags = virtualPointInfo.getTopicTags();
         Map<String, List<String>> topicTags = new HashMap<>(srcTopicTags.size());
-        srcTopicTags.forEach((srcTopic,tags)->{
-            String newTopic = currentEnv+srcTopic;
-            topicTags.put(newTopic,tags);
+        srcTopicTags.forEach((srcTopic, tags) -> {
+            String newTopic = currentEnv + srcTopic;
+            topicTags.put(newTopic, tags);
         });
         virtualPointInfo.setTopicTags(topicTags);
 
@@ -189,8 +192,8 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
         return basePackages;
     }
 
-    private void scanProducers(Set<String> basePackages,TopicPointInfo producerInfo,
-                                     BeanDefinitionRegistry registry) throws ClassNotFoundException {
+    private void scanProducers(Set<String> basePackages, TopicPointInfo producerInfo,
+                               BeanDefinitionRegistry registry) throws ClassNotFoundException {
         ClassPathScanningCandidateComponentProvider scanner = getScanner();
         scanner.setResourceLoader(this.resourceLoader);
         AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(
@@ -206,20 +209,18 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
                     AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
                     AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
                     String name = "producerApi$" + candidateComponent.getBeanClassName();
-                    registerProducerApi(registry, name, annotationMetadata,producerInfo);
+                    registerProducerApi(registry, name, annotationMetadata, producerInfo);
                 }
             }
         }
         logger.info("当前应用扫描到生产topics ");
         Map<String, List<String>> topicTags = producerInfo.getTopicTags();
-        topicTags.forEach((topic,tags)->{
-            logger.info("{}{}:{}",currentEnv,topic,tags);
+        topicTags.forEach((topic, tags) -> {
+            logger.info("{}{}:{}", currentEnv, topic, tags);
         });
         logger.info(" ");
 
     }
-
-
 
 
     public void scanConsumers(Set<String> basePackages, TopicPointInfo consumerInfo) throws ClassNotFoundException {
@@ -235,32 +236,32 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
             for (BeanDefinition candidateComponent : candidateComponents) {
                 if (candidateComponent instanceof AnnotatedBeanDefinition) {
                     String beanClassName = candidateComponent.getBeanClassName();
-                    parseVirtualInfo(beanClassName, consumerInfo,false);
+                    parseVirtualInfo(beanClassName, consumerInfo, false);
                 }
             }
         }
 
         logger.info("当前应用扫描到消费者topics ");
         Map<String, List<String>> topicTags = consumerInfo.getTopicTags();
-        topicTags.forEach((topic,tags)->{
-            logger.info("{}{}:{}",currentEnv,topic,tags);
+        topicTags.forEach((topic, tags) -> {
+            logger.info("{}{}:{}", currentEnv, topic, tags);
         });
         logger.info(" ");
     }
 
 
     protected void registerProducerApi(BeanDefinitionRegistry registry, String name,
-                                       AnnotationMetadata annotationMetadata,TopicPointInfo producerInfo) throws ClassNotFoundException {
+                                       AnnotationMetadata annotationMetadata, TopicPointInfo producerInfo) throws ClassNotFoundException {
         String beanName = name;
         logger.debug("即将创建的实例名:" + beanName);
         String beanClassName = annotationMetadata.getClassName();
-        parseVirtualInfo(beanClassName, producerInfo,true);
+        parseVirtualInfo(beanClassName, producerInfo, true);
         Map<String, Object> attritutes = annotationMetadata.getAnnotationAttributes(Topic.class.getCanonicalName());
         BeanDefinitionBuilder definition = BeanDefinitionBuilder
                 .genericBeanDefinition(ProducerFactoryBean.class);
         definition.addPropertyValue("name", name);
         definition.addPropertyValue("type", beanClassName);
-        if(attritutes != null){
+        if (attritutes != null) {
             definition.addPropertyValue("topic", attritutes.get("value"));
         }
         definition.addPropertyValue("producerInfo", producerInfo);
@@ -277,7 +278,7 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
         Class<?> targetClass = classLoader.loadClass(beanClassName);
         Topic classTopicAnno = targetClass.getAnnotation(Topic.class);
         String classTopic = null;
-        if(classTopicAnno != null){
+        if (classTopicAnno != null) {
             classTopic = classTopicAnno.value();
         }
         Method[] methods;
@@ -290,20 +291,20 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
             method.setAccessible(true);
             Topic methodTopicAnno = method.getAnnotation(Topic.class);
             Tag tagAnno = method.getAnnotation(Tag.class);
-            if(methodTopicAnno == null && tagAnno== null){
+            if (methodTopicAnno == null && tagAnno == null) {
                 continue;
             }
             String methodTopic = null;
-            if(methodTopicAnno !=null){
+            if (methodTopicAnno != null) {
                 methodTopic = methodTopicAnno.value();
             }
-            String targetTopic = methodTopic==null?classTopic:methodTopic;
-            if(StringUtils.isEmpty(targetTopic)){
-                throw new RuntimeException("主题不能为空"+targetClass.getName()+"."+method.getName());
+            String targetTopic = methodTopic == null ? classTopic : methodTopic;
+            if (StringUtils.isEmpty(targetTopic)) {
+                throw new RuntimeException("主题不能为空" + targetClass.getName() + "." + method.getName());
             }
             targetTopic = resolve(targetTopic);
             MethodInfo methodInfo = new MethodInfo();
-            pointInfo.putMethodInfo(method,methodInfo);
+            pointInfo.putMethodInfo(method, methodInfo);
 
             methodInfo.setTargetClass(targetClass);
             methodInfo.setMethod(method);
@@ -313,7 +314,7 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
             String key;
             if (tagAnno == null) {
                 key = targetTopic;
-            }else {
+            } else {
                 targetTag = resolve(tagAnno.value());
                 key = targetTopic + ":" + targetTag;
             }
@@ -323,11 +324,11 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
                 tags = new ArrayList<>();
             }
             //检测是否有重复的设置
-            checkScanInfo(key,pointInfo,methodInfo);
+            checkScanInfo(key, pointInfo, methodInfo);
             pointInfo.putMethodInfo(key, methodInfo);
-            if(targetTag != null) {
+            if (targetTag != null) {
                 tags.add(targetTag);
-            } else if( !isProducer ) {
+            } else if (!isProducer) {
                 tags.add("*");
             }
             pointInfo.getTopicTags().put(targetTopic, tags);
@@ -384,6 +385,7 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
             }
         };
     }
+
     public static boolean isBaseType(String typeName) {
         return baseTypes.contains(typeName.toLowerCase());
     }

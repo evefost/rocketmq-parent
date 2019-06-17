@@ -31,24 +31,18 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.util.*;
 
-//@ComponentScan("com.xhg.message.client")
 @Configuration
 @EnableConfigurationProperties({RocketmqProperties.class})
 @ConditionalOnProperty(prefix = RocketmqProperties.PREFIX, value = "serverAddr")
 @Slf4j
 public class RocketmqAutoConfiguration  {
 
-    {
-        System.setProperty("rocketmq.client.log.loadconfig","false");
-    }
+
     /**
      * 生产者配置
      */
     @ConditionalOnProperty(prefix = RocketmqProperties.PREFIX, value = "producer.enable")
     public static class ProducerConfiguration {
-        {
-            System.setProperty("rocketmq.client.log.loadconfig","false"); //TODO vjia what's this ?
-        }
 
         @Autowired
         private RocketmqProperties properties;
