@@ -2,7 +2,6 @@ package com.xie.message.client.pojo;
 
 import com.alibaba.fastjson.JSON;
 import com.xie.message.client.DelayLevel;
-import com.xie.message.client.config.MessageStatus;
 import com.xie.message.client.util.ObjectId;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -13,7 +12,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 
-import static com.xie.message.client.config.MessageStatus.NOT_SEND;
+import static com.xie.message.client.pojo.MessageStatus.NOT_SEND;
 
 /**
  * 消息包装类

@@ -1,19 +1,16 @@
 package com.xie.test.b.consumer.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.xie.test.b.beans.User;
 import com.xie.message.client.annotation.Consumer;
 import com.xie.message.client.annotation.Tag;
 import com.xie.message.client.annotation.Topic;
+import com.xie.test.b.beans.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by xieyang on 18/7/14.
- */
-//@Service
+
 @Consumer
-@Topic(value = "TopicB")
+@Topic(value = "TopicA")
 public class
 ServiceAImpl {
 
@@ -37,34 +34,36 @@ ServiceAImpl {
 //    }
 
     @Tag(value = "addUser2")
-    String addUser(User user){
-        logger.info("server b消费端  收到添加用户: "+ JSON.toJSONString(user));
-       return "server b收到添加用户2";
+    String addUser(User user) {
+        logger.info("server b消费端  收到添加用户: " + JSON.toJSONString(user));
+        return "server b收到添加用户2";
     }
-//    @Topic(value = "TopicA2")
+
+    //    @Topic(value = "TopicA2")
     @Tag(value = "addUser")
-    String addUser2(User user){
-        logger.info("server a 消费端  收到添加用户2: "+ JSON.toJSONString(user));
+    String addUser2(User user) {
+        logger.info("server a 消费端  收到添加用户2: " + JSON.toJSONString(user));
         return "server b收到添加用户";
     }
 
-    @Topic(value = "TopicC")
-    String topicC(User user){
-        logger.info("server a 消费端  收到添加用户NoTag: "+ JSON.toJSONString(user));
-        return "server b收到添加用户NoTag";
-    }
 //    @Topic(value = "TopicC")
-    String topicC2(User user){
-        logger.info("server a 消费端  收到添加用户NoTag: "+ JSON.toJSONString(user));
+    String topicC(User user) {
+        logger.info("server a 消费端  收到添加用户NoTag: " + JSON.toJSONString(user));
         return "server b收到添加用户NoTag";
     }
 
-    @Topic(value = "TopicC")
-    @Tag(value = "addUser")
-    String topicCAddUser(User user){
-        logger.info("server a 消费端  收到添加用户 addUser: "+ JSON.toJSONString(user));
-        if(true){
-            throw  new RuntimeException("假状失败了");
+    //    @Topic(value = "TopicC")
+    String topicC2(User user) {
+        logger.info("server a 消费端  收到添加用户NoTag: " + JSON.toJSONString(user));
+        return "server b收到添加用户NoTag";
+    }
+
+//    @Topic(value = "TopicC")
+//    @Tag(value = "addUser")
+    String topicCAddUser(User user) {
+        logger.info("server a 消费端  收到添加用户 addUser: " + JSON.toJSONString(user));
+        if (true) {
+            throw new RuntimeException("假状失败了");
         }
 
         return "server b收到添加用户NoTag";
@@ -84,14 +83,14 @@ ServiceAImpl {
 //    }
 
 
-
-    String NoTagssss(User user){
-        logger.info("server a 消费端  xxxxxx: "+ JSON.toJSONString(user));
+    String NoTagssss(User user) {
+        logger.info("server a 消费端  xxxxxx: " + JSON.toJSONString(user));
         return "server xxxxx";
     }
+
     @Topic(value = "pre_test")
-    String topicCAddUserss(User user){
-        logger.info("sdddddddddddddddddddddr: "+ JSON.toJSONString(user));
+    String topicCAddUserss(User user) {
+        logger.info("sdddddddddddddddddddddr: " + JSON.toJSONString(user));
         return "server b收到添加用户NoTag";
     }
 

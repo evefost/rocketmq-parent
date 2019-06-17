@@ -41,10 +41,10 @@ public class TestTransactionController implements ApplicationContextAware {
     @Autowired(required = false)
     private InterfaceB interfaceB;
 
-    @Autowired
+    @Autowired(required = false)
     InnerMessageSender innerMessageSender;
 
-    @Autowired
+    @Autowired(required = false)
     MessagePublisher publisher;
 
     @RequestMapping(value = "/publishTopicCAddUser", method = RequestMethod.GET)
@@ -94,7 +94,7 @@ public class TestTransactionController implements ApplicationContextAware {
         return "addUser2:"+count;
     }
 
-    @Autowired
+    @Autowired(required = false)
     DefaultMQProducer transactionMQProducer;
 
     @RequestMapping(value = "/transastion", method = RequestMethod.GET)

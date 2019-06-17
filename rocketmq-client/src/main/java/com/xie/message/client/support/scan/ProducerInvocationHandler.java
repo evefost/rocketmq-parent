@@ -13,6 +13,7 @@ import java.lang.reflect.Proxy;
 
 /**
  * 生产者消息处理
+ *
  * @author xieyang
  * @date 18/7/14
  */
@@ -38,8 +39,8 @@ public class ProducerInvocationHandler implements InvocationHandler {
         if ("equals".equals(method.getName())) {
             try {
                 Object
-                    otherHandler =
-                    args.length > 0 && args[0] != null ? Proxy.getInvocationHandler(args[0]) : null;
+                        otherHandler =
+                        args.length > 0 && args[0] != null ? Proxy.getInvocationHandler(args[0]) : null;
                 return equals(otherHandler);
             } catch (IllegalArgumentException e) {
                 return false;
@@ -49,32 +50,30 @@ public class ProducerInvocationHandler implements InvocationHandler {
         } else if ("toString".equals(method.getName())) {
             return method.toString();
         }
-        try {
-            MethodInfo methodInfo = producerInfo.getMethodInfo(method);
-            String key = methodInfo.getTopic() + ":" + methodInfo.getTag();
-            logger.debug("发布消息 Topic-Tag:[{}], 方法参数: {}", key, JSON.toJSONString(args));
-            SourceEvent sourceEvent = new SourceEvent(this);
-            sourceEvent.setWithEnv(true);
-            sourceEvent.setTopic(methodInfo.getTopic());
-            sourceEvent.setTag(methodInfo.getTag());
-            sourceEvent.setTrans(methodInfo.isTrans());
-            if (args != null && args.length == 1) {
-                sourceEvent.setData(args[0]);
-                if (sourceEvent.isTrans()) {
-                    publisher.publishTransEvent(sourceEvent);
-                } else {
-                    publisher.publishEvent(sourceEvent);
-                }
-            } else {
-                throw new RuntimeException("parameters are not support");
-            }
-            Class<?> returnType = method.getReturnType();
-            if (void.class == returnType) {
-                return null;
-            }
-            return null;
-        } finally {
 
+        MethodInfo methodInfo = producerInfo.getMethodInfo(method);
+        String key = methodInfo.getTopic() + ":" + methodInfo.getTag();
+        logger.debug("发布消息 Topic-Tag:[{}], 方法参数: {}", key, JSON.toJSONString(args));
+        SourceEvent sourceEvent = new SourceEvent(this);
+        sourceEvent.setWithEnv(true);
+        sourceEvent.setTopic(methodInfo.getTopic());
+        sourceEvent.setTag(methodInfo.getTag());
+        sourceEvent.setTrans(methodInfo.isTrans());
+        if (args != null && args.length == 1) {
+            sourceEvent.setData(args[0]);
+            if (sourceEvent.isTrans()) {
+                publisher.publishTransEvent(sourceEvent);
+            } else {
+                publisher.publishEvent(sourceEvent);
+            }
+        } else {
+            throw new RuntimeException("parameters are not support");
         }
+        Class<?> returnType = method.getReturnType();
+        if (void.class == returnType) {
+            return null;
+        }
+        return null;
+
     }
 }

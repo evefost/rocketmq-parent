@@ -7,8 +7,12 @@ import java.util.List;
 
 import static com.xie.message.client.config.RocketmqProperties.PREFIX;
 
+/**
+ * 配置了才启用
+ * @author xieyang
+ */
 @Data
-@ConfigurationProperties(PREFIX)//配置了才启用
+@ConfigurationProperties(PREFIX)
 public class RocketmqProperties {
 
     public static final String PREFIX = "spring.extend.mq";

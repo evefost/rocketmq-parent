@@ -63,7 +63,9 @@ public class RocketmqAutoConfiguration  {
              * ProducerGroup这个概念发送普通的消息时，作用不大，但是发送分布式事务消息时，比较关键，
              * 因为服务器会回查这个Group下的任意一个Producer
              */
-            DefaultMQProducer producer = new DefaultMQProducer(properties.getInstanceName());
+            String producerGroup = properties.getInstanceName();
+            log.info("应用 mq生产组名:{} 建议组名与应用名一致方便管理",producerGroup);
+            DefaultMQProducer producer = new DefaultMQProducer(producerGroup);
             //默认设置8
             producer.setDefaultTopicQueueNums(16);
             producer.setNamesrvAddr(properties.getServerAddr());
@@ -128,11 +130,14 @@ public class RocketmqAutoConfiguration  {
              * 一个应用创建一个Consumer，由应用来维护此对象，可以设置为全局对象或者单例<br>
              * 注意：ConsumerGroupName需要由应用来保证唯一
              */
-            DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(properties.getInstanceName());
+            String consumerGroup = properties.getInstanceName();
+            log.info("应用mq消费组名:{} 建议组名与应用名一致方便管理",consumerGroup);
+            DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(consumerGroup);
             consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
             consumer.setNamesrvAddr(properties.getServerAddr());
             consumer.setInstanceName(properties.getInstanceName());
-            consumer.setConsumeMessageBatchMaxSize(1);//设置批量消费，以提升消费吞吐量，默认是1
+            //设置批量消费，以提升消费吞吐量，默认是1
+            consumer.setConsumeMessageBatchMaxSize(1);
             //设置成广播模式，也就是发布订阅模式，消息会发给Consume Group中的每一个消费者进行消费
             //consumer.setMessageModel(MessageModel.BROADCASTING);
             consumer.registerMessageListener(messageListenerConcurrently);
@@ -234,7 +239,7 @@ public class RocketmqAutoConfiguration  {
                 scanner.addIncludeFilter(annotationTypeFilter);
                 scanner.setIncludeAnnotationConfig(false);
                 Set<BeanDefinition> candidateComponents = scanner
-                        .findCandidateComponents("com.xhg");
+                        .findCandidateComponents("com.xie");
                 ClassLoader classLoader = applicationContext.getClassLoader();
                 if (candidateComponents.size() > 0) {
                     for (BeanDefinition candidateComponent : candidateComponents) {

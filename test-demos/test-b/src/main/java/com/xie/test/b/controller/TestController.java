@@ -47,13 +47,13 @@ public class TestController implements ApplicationContextAware {
     @Autowired(required = false)
     private InterfaceB interfaceB;
 
-    @Autowired
+    @Autowired(required = false)
     InnerMessageSender innerMessageSender;
 
-    @Autowired
+    @Autowired(required = false)
     MessagePublisher publisher;
 
-    @Autowired
+    @Autowired(required = false)
     DefaultMQProducer transactionMQProducer;
 
     int count = 0;

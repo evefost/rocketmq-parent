@@ -1,4 +1,4 @@
-package com.xie.message.client.config;
+package com.xie.message.client.pojo;
 
 public enum MessageStatus {
 

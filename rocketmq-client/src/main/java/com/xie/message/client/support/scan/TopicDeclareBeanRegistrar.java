@@ -96,7 +96,8 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
         boolean pdenable = Boolean.parseBoolean(producerEnable);
         boolean csenable = Boolean.parseBoolean(consumerEnable);
         if(pdenable == false && csenable ==false){
-            logger.warn("生产端消费端都没有启用,生产端虚拟接口将无法注入,可能导致项目启动失败");
+            logger.warn("生产端,消费端都没有启用,生产端接口将无法注入,可能导致项目启动失败");
+            return;
         }
         TopicPointInfo producerInfo = new TopicPointInfo();
         producerInfo.setProducer(true);
@@ -209,12 +210,47 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
                 }
             }
         }
-        logger.info("当前应用扫描到生产topics " + JSON.toJSONString(producerInfo.getTopicTags()));
+        logger.info("当前应用扫描到生产topics ");
+        Map<String, List<String>> topicTags = producerInfo.getTopicTags();
+        topicTags.forEach((topic,tags)->{
+            logger.info("{}{}:{}",currentEnv,topic,tags);
+        });
+        logger.info(" ");
+
+    }
+
+
+
+
+    public void scanConsumers(Set<String> basePackages, TopicPointInfo consumerInfo) throws ClassNotFoundException {
+        //扫描指定的包，过滤出只打topic 及 tag标签的接口或类
+        ClassPathScanningCandidateComponentProvider scanner = getScanner();
+        scanner.setResourceLoader(this.resourceLoader);
+        AnnotationTypeFilter inFilter = new AnnotationTypeFilter(
+                Consumer.class);
+        scanner.addIncludeFilter(inFilter);
+        for (String basePackage : basePackages) {
+            Set<BeanDefinition> candidateComponents = scanner
+                    .findCandidateComponents(basePackage);
+            for (BeanDefinition candidateComponent : candidateComponents) {
+                if (candidateComponent instanceof AnnotatedBeanDefinition) {
+                    String beanClassName = candidateComponent.getBeanClassName();
+                    parseVirtualInfo(beanClassName, consumerInfo,false);
+                }
+            }
+        }
+
+        logger.info("当前应用扫描到消费者topics ");
+        Map<String, List<String>> topicTags = consumerInfo.getTopicTags();
+        topicTags.forEach((topic,tags)->{
+            logger.info("{}{}:{}",currentEnv,topic,tags);
+        });
+        logger.info(" ");
     }
 
 
     protected void registerProducerApi(BeanDefinitionRegistry registry, String name,
-                                      AnnotationMetadata annotationMetadata,TopicPointInfo producerInfo) throws ClassNotFoundException {
+                                       AnnotationMetadata annotationMetadata,TopicPointInfo producerInfo) throws ClassNotFoundException {
         String beanName = name;
         logger.debug("即将创建的实例名:" + beanName);
         String beanClassName = annotationMetadata.getClassName();
@@ -234,26 +270,6 @@ public class TopicDeclareBeanRegistrar implements ImportBeanDefinitionRegistrar,
         BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, beanName,
                 new String[]{});
         BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
-    }
-
-    public void scanConsumers(Set<String> basePackages, TopicPointInfo consumerInfo) throws ClassNotFoundException {
-        //扫描指定的包，过滤出只打topic 及 tag标签的接口或类
-        ClassPathScanningCandidateComponentProvider scanner = getScanner();
-        scanner.setResourceLoader(this.resourceLoader);
-        AnnotationTypeFilter inFilter = new AnnotationTypeFilter(
-                Consumer.class);
-        scanner.addIncludeFilter(inFilter);
-        for (String basePackage : basePackages) {
-            Set<BeanDefinition> candidateComponents = scanner
-                    .findCandidateComponents(basePackage);
-            for (BeanDefinition candidateComponent : candidateComponents) {
-                if (candidateComponent instanceof AnnotatedBeanDefinition) {
-                    String beanClassName = candidateComponent.getBeanClassName();
-                    parseVirtualInfo(beanClassName, consumerInfo,false);
-                }
-            }
-        }
-        logger.info("当前应用扫描到消费者topics " + JSON.toJSONString(consumerInfo.getTopicTags()));
     }
 
     private void parseVirtualInfo(String beanClassName, TopicPointInfo pointInfo, boolean isProducer) throws ClassNotFoundException {
