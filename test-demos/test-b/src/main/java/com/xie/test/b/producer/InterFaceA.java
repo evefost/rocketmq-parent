@@ -19,6 +19,6 @@ public interface InterFaceA {
 
 
     @Tag(value = "addUser2")
-    @TransMsg
+//    @TransMsg
     void addUser2(User user);
 }

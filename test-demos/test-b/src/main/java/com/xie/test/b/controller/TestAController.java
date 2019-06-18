@@ -65,4 +65,17 @@ public class TestAController {
 
     }
 
+    @RequestMapping(value = "/addUser2", method = RequestMethod.GET)
+    public void addUser2(String topicName) {
+        interFaceA.addUser2(new User());
+
+    }
+
+
+    @RequestMapping(value = "/create", method = RequestMethod.GET)
+    public void create(String topic) throws MQClientException {
+        transactionMQProducer.createTopic(null,topic,16);
+
+    }
+
 }

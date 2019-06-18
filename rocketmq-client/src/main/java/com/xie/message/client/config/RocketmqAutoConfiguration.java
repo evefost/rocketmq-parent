@@ -71,7 +71,6 @@ public class RocketmqAutoConfiguration  {
             producer.setVipChannelEnabled(false);
             // 消息发送处理时的超时时间(超过此值则抛弃不再处理， 其值官方默认 3000ms;
             producer.setSendMsgTimeout(properties.getSendMsgTimeout());
-
             /**
              * Producer对象在使用之前必须要调用start初始化，初始化一次即可<br>
              * 注意：切记不可以在每次发送消息时，都调用start方法
