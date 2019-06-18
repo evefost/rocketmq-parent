@@ -31,6 +31,10 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * rocketmq 自动配置类
+ * @author xieyang
+ */
 @Configuration
 @EnableConfigurationProperties({RocketmqProperties.class})
 @ConditionalOnProperty(prefix = RocketmqProperties.PREFIX, value = "serverAddr")
